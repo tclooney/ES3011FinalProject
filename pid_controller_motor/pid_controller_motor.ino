@@ -1,11 +1,15 @@
-//This code is to use with L298n Dual H-bridge motor driver<br>//It just turns on a DC motor for a certain time in a direction, turn it off, turn in the other direction and turn it off again
-//refer to surtrtech.blogspot.com for more information
 
 #include <Encoder.h>
 #include <L298N.h>
 
-int in1 = 9; //Declaring the pins where in1 in2 from the driver are wired 
-int in2 = 8; //here they are wired with D9 and D8 from Arduino
+// Insert kp, kd and ki values here
+double kp = 0.005;
+double kd = 0.003;
+double ki = 0.1;
+// Do not edit beyond this
+
+int in1 = 9; 
+int in2 = 8;
 int in2_1 = 7;
 int m_en2 = 6;
 int m_en1 = 5;
@@ -25,21 +29,12 @@ long elapsedTime = 0;
 long cumError = 0;
 long rateError = 0;
 
-double kp = 0.5;
-double kd = 10;
-double ki = 0.75;
-
-
 void setup() {
   Serial.begin(115200);
 
-  pinMode(in1, OUTPUT); //Declaring the pin modes, obviously they're outputs
+  pinMode(in1, OUTPUT); 
   pinMode(in2, OUTPUT);
 }
-//Before starting the loop you should create functions type "void" to control the driver's pins
-//Here I created three functions, one to turn the motor in a direction "#1", the other one to the other direction "#3"
-//and the second one to stop the motor
-//For changing directions you switch the HIGH with LOW and vice-versa
 
 void controlMotor(int speed, int dir){
   motor.setSpeed(speed);
@@ -67,7 +62,6 @@ void loop() {
       int direction = (abs(error_val > 0 ) ? L298N::FORWARD : L298N::BACKWARD);
       previousMillis = currentMillis;  
       controlMotor(effort_pid, direction);  
-
 
       Serial.print("PWM value: ");
       Serial.print(driverPwm);

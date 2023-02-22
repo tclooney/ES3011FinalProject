@@ -1,8 +1,9 @@
 #include <Encoder.h>
 #include <L298N.h>
 
-// Insert kp value here
-double kp = 2;
+// Insert kp and kd values here
+double kp = 0.005;
+double kd = 0.003;
 // Do not edit beyond this
 
 int in1 = 9; 
@@ -16,10 +17,15 @@ Encoder enc(m_en1, m_en2);
 
 long current_val = 0;
 long error_val = 0;
-int desiredPos = 1500;
+int desiredPos = 1300;
 long previousMillis = 0; 
-long interval = 10;  
+long interval = 5;  
 unsigned short driverPwm = 0;
+long error_val_init = 0;
+long previousTime = 0;
+long elapsedTime = 0;
+long cumError = 0;
+long rateError = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -45,11 +51,15 @@ void loop() {
   long currEnc = enc.read();
 
   if(currentMillis - previousMillis > interval){
+      elapsedTime = currentMillis - previousTime;
       error_val = currEnc - desiredPos;
+      cumError += error_val * elapsedTime;
+      rateError = (error_val - error_val_init)/elapsedTime;
       int effort = kp*error_val;
+      int effort_pid = kp * error_val + kd * rateError;
       int direction = (abs(error_val > 0 ) ? L298N::FORWARD : L298N::BACKWARD);
       previousMillis = currentMillis;  
-      controlMotor(effort, direction);  
+      controlMotor(effort_pid, direction);  
 
       Serial.print("PWM value: ");
       Serial.print(driverPwm);
@@ -59,5 +69,7 @@ void loop() {
       Serial.print(error_val);
       Serial.print("\tDirection: ");
       Serial.println(direction);
+      error_val_init = error_val;
+      previousTime = currentMillis;
     }
 }
