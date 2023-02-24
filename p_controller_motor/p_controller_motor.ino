@@ -1,8 +1,11 @@
 #include <Encoder.h>
 #include <L298N.h>
 
-// Insert kp value here
-double kp = 2;
+// Insert kp and final position values here
+// For vertical position, desiredPos is 1250
+// For parallel right, desiredPos is 1850
+int desiredPos = 1850;
+double kp = 0.1;
 // Do not edit beyond this
 
 int in1 = 9; 
@@ -16,7 +19,6 @@ Encoder enc(m_en1, m_en2);
 
 long current_val = 0;
 long error_val = 0;
-int desiredPos = 1500;
 long previousMillis = 0; 
 long interval = 10;  
 unsigned short driverPwm = 0;
